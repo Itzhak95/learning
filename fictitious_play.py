@@ -48,7 +48,6 @@ def ncr(n, r):
     return numer // denom  # or / in Python 2
 
 # This function returns your chance of winning given your bid and the observed history of opponent bids
-# Side note: this is a bit more complicated with n > 2 (requires some combinatorics)
 
 def p_win(bid, previous_bids):
     lower_bids = [element for element in previous_bids if element < bid]
@@ -79,7 +78,6 @@ def best_response(valuation, previous_bids):
         return possible_payoffs.index(max(possible_payoffs))
 
 # Finally, we define an 'evolution' function which returns a new round of bids given the values just drawn and the bid history
-# NB Can be made more elegant (for n > 2) using for loops
 
 def evolution(historic_bids, values):
     optimal_bids = []
