@@ -6,6 +6,13 @@ from functools import reduce
 
 start_time = time.time()
 
+# Notes:
+# The first n - 1 bidders are the 'weak bidders'.
+# Their valuations are each uniform on [0, 0.5n/(n - 1)x]
+# The last bidder is the 'strong bidder'.
+# Their valuation is the maximum of n independent uniform random variables on X
+# The file should ONLY be run for the first-price auction.
+
 # INPUTS
 
 # NB For now, I am assuming that there are 2 players and uniform values
@@ -16,7 +23,7 @@ x = 101
 
 # Specify the auction structure (first price vs all-pay)
 
-first_price = 0
+first_price = 1
 
 # Specify the number of players
 
@@ -24,7 +31,7 @@ n = 2
 
 # Specify the number of time periods (slow if t >> 10,000)
 
-t = 30
+t = 3000
 
 print(f'There are {n} players and {t} time periods.')
 
@@ -98,7 +105,16 @@ bid_history = []
 
 # Let's draw values (and specify bids) for the first round
 
-values = [randint(0, x-1) for player in range(0, n)]
+# First, here are the values of the weak bidders
+
+upper = floor((0.5*x*n)/(n-1))
+values = [randint(0, upper) for player in range(0, n-1)]
+
+# Now determine the value of the strong bidder
+
+some_valuations = [randint(0, x-1) for player in range(0, n)]
+values.append(max(some_valuations))
+
 if first_price == 1:
     bids = [floor(((n-1)/n)*value) for value in values]
 else:
@@ -111,29 +127,43 @@ bid_history.append(bids)
 
 tracker = 0
 while tracker <= t:
-    values = [randint(0, x-1) for player in range(0, n)]
+    values = [randint(0, upper) for player in range(0, n-1)]
+    some_valuations = [randint(0, x - 1) for player in range(0, n)]
+    values.append(max(some_valuations))
     value_history.append(values)
     bid_history.append(evolution(bid_history, values))
     tracker += 1
 
-# Finally, we calculate the distribution of the observed bids
+# Finally, we calculate the distribution of the observed bids (I'll do this just for n = 2)
 
-all_bids = [item for sublist in bid_history for item in sublist]
+weak_bids = [element[0] for element in bid_history]
 
-bid_distribution = []
+weak_bid_distribution = []
 
 for bid in bid_space:
-    matching_bids = [element for element in all_bids if element == bid]
-    bid_distribution.append(len(matching_bids)/len(all_bids))
+    matching_bids = [element for element in weak_bids if element == bid]
+    weak_bid_distribution.append(len(matching_bids)/len(weak_bids))
 
-print("Value history")
-print(value_history)
+strong_bids = [element[1] for element in bid_history]
 
-print("Bid history")
-print(bid_history)
+strong_bid_distribution = []
 
-print("Bid distribution")
-for element in bid_distribution:
+for bid in bid_space:
+    matching_bids = [element for element in strong_bids if element == bid]
+    strong_bid_distribution.append(len(matching_bids)/len(strong_bids))
+
+# print("Value history")
+# print(value_history)
+#
+# print("Bid history")
+# print(bid_history)
+
+print("Weak Bid distribution")
+for element in weak_bid_distribution:
+    print(element)
+
+print("Strong Bid distribution")
+for element in strong_bid_distribution:
     print(element)
 
 print(f'Run time: {round((time.time() - start_time), 1)} seconds.')
