@@ -107,12 +107,13 @@ bid_history = []
 
 # First, here are the values of the weak bidders
 
-upper = floor((0.5*x*n)/(n-1))
+upper = floor((0.5*x*(n+1)/n))
+print(f'Upper bound: {upper}')
 values = [randint(0, upper) for player in range(0, n-1)]
 
 # Now determine the value of the strong bidder
 
-some_valuations = [randint(0, x-1) for player in range(0, n)]
+some_valuations = [randint(0, x) for player in range(0, n)]
 values.append(max(some_valuations))
 
 if first_price == 1:
@@ -128,7 +129,7 @@ bid_history.append(bids)
 tracker = 0
 while tracker <= t:
     values = [randint(0, upper) for player in range(0, n-1)]
-    some_valuations = [randint(0, x - 1) for player in range(0, n)]
+    some_valuations = [randint(0, x) for player in range(0, n)]
     values.append(max(some_valuations))
     value_history.append(values)
     bid_history.append(evolution(bid_history, values))
